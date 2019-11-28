@@ -1,0 +1,1 @@
+/usr/bin/cc -g   CMakeFiles/memory_memory_allocator_ShiraZaltsman.dir/main.c.o CMakeFiles/memory_memory_allocator_ShiraZaltsman.dir/memory_allocator.c.o  -o memory_memory_allocator_ShiraZaltsman 

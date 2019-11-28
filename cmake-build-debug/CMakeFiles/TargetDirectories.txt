@@ -1,0 +1,3 @@
+/home/shira/Desktop/C/memory-memory-allocator-ShiraZaltsman/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/shira/Desktop/C/memory-memory-allocator-ShiraZaltsman/cmake-build-debug/CMakeFiles/memory_memory_allocator_ShiraZaltsman.dir
+/home/shira/Desktop/C/memory-memory-allocator-ShiraZaltsman/cmake-build-debug/CMakeFiles/edit_cache.dir
