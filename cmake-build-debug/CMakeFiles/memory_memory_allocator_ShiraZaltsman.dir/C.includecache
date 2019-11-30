@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/shira/Desktop/C/memory-memory-allocator-ShiraZaltsman/main.c
+stdio.h
+-
+stdlib.h
+-
+memory_allocator.h
+/home/shira/Desktop/C/memory-memory-allocator-ShiraZaltsman/memory_allocator.h
+
+/home/shira/Desktop/C/memory-memory-allocator-ShiraZaltsman/memory_allocator.h
+glob.h
+-
+stdlib.h
+-
+

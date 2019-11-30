@@ -6,7 +6,7 @@
 #define MEMORY_MEMORY_ALLOCATOR_SHIRAZALTSMAN_MEMORY_ALLOCATOR_H
 
 #include <glob.h>
-
+#include <stdlib.h>
 #define ALIGN_SIZE 8
 
 typedef struct MemoryAllocator MemoryAllocator;
@@ -28,4 +28,9 @@ void MemoryAllocator_free(MemoryAllocator *allocator, void *ptr);
 largest free block */
 size_t MemoryAllocator_optimize(MemoryAllocator *allocator);
 
+void AddBlock(size_t *p, size_t len);
+
+int MergeBlock(size_t *p);
+
+size_t *FindNextFreeBlock(size_t *ptr, size_t *end);
 #endif //MEMORY_MEMORY_ALLOCATOR_SHIRAZALTSMAN_MEMORY_ALLOCATOR_H

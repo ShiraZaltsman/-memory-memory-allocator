@@ -4,61 +4,101 @@
 #include <stddef.h>
 #include "memory_allocator.h"
 
-struct MemoryAllocator
-{
-    long *memory;
+struct MemoryAllocator {
+    size_t *memory;
     size_t size;
 };
 
-MemoryAllocator memo;
+size_t roundSize(size_t size);
 
 
 /* memoryPool is a ptr to an already-existing large memory block */
 MemoryAllocator *MemoryAllocator_init(void *memoryPool, size_t size) {
-    memo.memory = memoryPool;
-    memo.size = size;
+    MemoryAllocator *memo = malloc(sizeof(MemoryAllocator));
+    if (memo == NULL)
+        return NULL;
+
+    // Set size, pointer  and return.
+
+    memo->memory = memoryPool;
+    memo->size = size;
 
     /* matadata: positive value: free and negative value: occupied */
-    *memo.memory=(long)(size-8);
-    return &memo;
+    *(memo->memory) = (size - ALIGN_SIZE) / ALIGN_SIZE;
+    return memo;
 }
 
 /* Returns a ptr to the memoryPool */
 void *MemoryAllocator_release(MemoryAllocator *allocator) {
-    return memo.memory;
+    void *ptr = allocator->memory;
+    free(allocator);
+    return ptr;
+}
+
+size_t *FindNextFreeBlock(size_t *ptr, size_t *end) {
+    while (ptr < end && *ptr & 1) {
+        ptr = ptr + (*ptr & -2);
+    }
+    if (ptr >= end)
+        return NULL;
+    return ptr;
 }
 
 /* Allocate a memory chunk, return NULL  if fail*/
 void *MemoryAllocator_allocate(MemoryAllocator *allocator, size_t size) {
-
     if (size == 0) {
         return NULL;
     }
-    long *ptr = allocator->memory;
-    while(ptr != (allocator->memory + allocator->size)){
-        if(*ptr > 0) /* its a free block yay! */
-        {
-            long *free_start = ptr;
-            long free_size= *ptr;
-            /* its big  enough to allocate! */
-            if(*ptr >= size)
-            {
-                long old_free_size = *ptr;
-                *ptr = -size; /* update matedata to occupied */
-                if (*ptr > size + ALIGN_SIZE)
-                {
-                    /* update next matedata to free */
-                   *(ptr + size + ALIGN_SIZE) = old_free_size - size - ALIGN_SIZE;
-                }
-            }
-            else
-            {
+    size_t paddinglen = roundSize(size);
+    size_t *ptr = allocator->memory;
+    size_t *end = allocator->memory + allocator->size;
 
-            }
+    while (*ptr < paddinglen) {
+
+        /* finds first free place */
+        ptr = FindNextFreeBlock(ptr, end);
+        if (!ptr) {
+            return NULL;
         }
+        /* while dont have enough free space merge neighbor blocks if possible */
+        while (MergeBlock(ptr));
+        if(*ptr >= paddinglen){ /* its big enough*/
+            AddBlock(ptr, paddinglen);
+            break;
+        }
+        else
+            ptr = ptr + *ptr;
     }
-    if(*((long*)ptr) < size)
-    {
+    if(ptr>= end)
+        return NULL;
+    return ptr + ALIGN_SIZE;
+}
 
+/* Merge the next adjacent block is free */
+void MemoryAllocator_free(MemoryAllocator *allocator, void *ptr){
+    *(size_t*)ptr = *(size_t*)ptr & -2; // mask the size as free by deleting the LSB
+    while(MergeBlock(ptr));
+
+}
+void AddBlock(size_t *p, size_t len) {
+    /* size_t newSize = ((len +1) >> 1) << 1; */
+    size_t oldSize = *p; /*& -2;*/
+    *p = len | 1;
+    if (len < oldSize)
+        *(p + len) = oldSize - len;
+}
+
+int MergeBlock(size_t *p) {
+    size_t *nextPtr;
+    nextPtr = p + *p;
+    if ((*nextPtr & 1) == 0) {
+        *p = *p + *nextPtr;
+        return 1;
     }
+    return 0;
+}
+
+size_t roundSize(size_t size) {
+    while (size++ % ALIGN_SIZE != 0);
+    return size;
 }
